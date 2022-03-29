@@ -1,0 +1,191 @@
+\documentclass{scribe}
+\theoremstyle{plain}
+\theoremheaderfont{\upshape \bfseries}
+\theoremseparator{.}
+\theoremsymbol{}
+\theorembodyfont{\itshape}
+\newtheorem{problem}[theorem]{Problem}
+\theoremstyle{empty}
+\theoremheaderfont{\upshape \bfseries}
+\theorembodyfont{\upshape}
+\theoremsymbol{\ensuremath{\square}}
+\newtheorem{refproof}{Proof}
+
+\setCourse{Mathematics for Computer Science (30470023)}
+\setSemester{Spring 2020}
+\setInstructor{Andrew C. Yao}
+\setLectureID{3}
+\setLectureDate{Mar 2, 2020}
+\setScribe{Han Luo}
+
+\begin{document}
+\notetitle
+    
+\section{Overview}
+In this lecture we discribe the solution to the Online Auction Problem. The surprising result is that it is the best to skip first $\frac{1}{\text{e}}$ offers. Then we introduce the concept of conditional probability, and also the distributive principle as well as the chain rule. Finally we introduce the expectation for a random variable. 
+    
+\section{The Online Auction Problem (Secretary's Problem/Beauty contest)}
+    
+In last lecture we introduced the Online Auction Problem:
+    
+\begin{problem}
+    A music concert ticket is selling. There is a stream of $n$ offers with prices $x_1,x_2,\cdots,x_n$, for what strategy can we get the best price with highest probability?
+\end{problem}
+
+\begin{remark}
+    The strategy is non-regrettable, means that we cannot go back to the previous offers we rejected.
+\end{remark}
+
+\subsection{Formalizing}
+
+We can simply assume that $x_1,x_2,\cdots,x_n$ is a permutation of $1,2,\cdots,n$. The probability space $\mathbb{P}=(\mathcal{U},p)$ is denoted by
+\begin{itemize}
+    \item $\mathcal{U}$ is the set of all permutations of $\{1,2,\cdots,n\}$;
+    \item For all $u\in \mathcal{U}$, $p(u)=\dfrac{1}{n!}$;
+    \item $T$ is the event of accepting the best offer (i.e. the price $n$).
+\end{itemize}
+
+For integer $k(1\le k<n)$, we denote strategy $k$ as
+\begin{itemize}
+    \item[1.] Skip the first $k$ offer;
+    \item[2.] For $j>k$, take the first $x_j$, such that $x_j>\max\{x_1,x_2,\cdots,x_k\}$.
+\end{itemize}
+Then the probability of getting the best price $p_{n,k}=\dfrac{|T|}{|\mathcal{U}|}=\dfrac{|T|}{n!}$. To calculate it, we should first obtain the properties of the permutations where we can reach the best price.
+
+A permutation $u=(x_1,x_2,\cdots,x_n)$ where $x_j=n$ is in $T$ iff
+\begin{itemize}
+    \item[1.] $j>k$;
+    \item[2.] $\max\{x_1,x_2,\cdots,x_{j-1}\}=\max\{x_1,x_2,\cdots,x_{k}\}$.
+\end{itemize}
+
+To continue the calculation, we first introduce two basic principles.
+
+\subsection{Two basic principles}
+
+\begin{theorem}[Addition principle]
+    If $S=S_1\cup S_2\cup\cdots\cup S_m$ is a disjoint union, then
+    $$|S|=\sum_{i=1}^m|S_i|.$$
+\end{theorem}
+
+\begin{remark}
+    As a simple application for addition principle, we have $\text{Pr}(S)\le\sum\limits_{i=1}^m \text{Pr}(S_i)$, the equality holds iff the $S_i$ are disjoint.
+\end{remark}
+
+\begin{theorem}[Multiplication principle]
+    If $S$ has items characterized by $s\in S, s=(i_1,i_2,\cdots,i_l)$, and $1\le i_j\le c_j$ for all $1\le j\le l$, then
+    $$|S|=c_1c_2\cdots c_l.$$
+\end{theorem}
+
+\subsection{The solution of the Online Auction Problem}
+
+\begin{lemma} \label{lmm:num-permutation}
+    Denote $T_j$ as the set of permutations in $T$ that $x_j=n$, then
+    $$|T_j|=n!\cdot\frac{1}{n}\cdot\frac{k}{j-1}.$$
+\end{lemma}
+
+We will prove to this lemma later. 
+
+Applying the lemma, we get that
+$$|T|=\sum_{j>k}|T_j|=n!\cdot\frac{k}{n}\left(\frac{1}{k}+\frac{1}{k+1}+\cdots+\frac{1}{n}\right),$$
+so
+\begin{align*}
+    p_{n,k}&=\frac{k}{n}\left(\frac{1}{k}+\frac{1}{k+1}+\cdots+\frac{1}{n}\right) \\
+    & \approx\frac{k}{n}\left(\ln n-\ln k\right) \\
+    & =\frac{k}{n}\ln \frac{n}{k}
+\end{align*}
+by derivation we get that when $k=\dfrac{1}{\text{e}}n$ the probability reaches the maximum $\dfrac{1}{\text{e}}$.
+
+\section{Conditional Probability}
+
+\begin{definition}
+    Let $V,W$ be two events such that $\text{Pr}(W)\neq 0$. The conditional probability of $V$ (conditioned on $W$) is defined by
+    $$\text{Pr}(V|W)=\frac{\text{Pr}(V\cap W)}{\text{Pr}(W)}.$$
+\end{definition}
+\begin{remark} 
+    \begin{itemize}
+        \item[1.] $V\cap W$ represents the event that both $V$ and $W$ happen simultaneously;
+        \item[2.] The conditional probability can be seen as a restricted probability space $\mathbb{P'}=(W,p')$ with $p'(u)=\dfrac{p(u)}{\text{Pr}(W)}$;
+        \item[3.] In particular, define $\text{Pr}(V|W)=0$ if $\text{Pr}(W)=0$.
+    \end{itemize}
+\end{remark}
+
+\begin{theorem}[Distributive principle]
+    Let $W_1, W_2, \cdots, W_m$ be disjoint events, and their union is $W=W_1\cup W_2\cup\cdots\cup W_m$, then for arbitrary event $T$, we have 
+    $$\Pr(T|W)=\frac{\sum_{i=1}^m\text{Pr}(W_i)\text{Pr}(T|W_i)}{\text{Pr}(W)}.$$ 
+\end{theorem}
+
+\begin{proof}
+    Since $W_1,W_2,\cdots,W_m$ are disjoint, we get that $T\cap W_1,T\cap W_2,\cdots,T\cap W_m$ are disjoint and their union is $T\cap W$. So by the addition principle,
+\begin{align*}
+    \sum_{i=1}^m\text{Pr}(W_i)\text{Pr}(T|W_i) & = \sum_{i=1}^m \text{Pr}(T\cap W_i) \\
+    &= \text{Pr}(T\cap W) \\
+    &=\text{Pr}(T|W)\text{Pr}(W).
+\end{align*}
+\end{proof}
+
+This distributive principle can be applied to the Online Auction Problem.
+
+\begin{example}[Proof of Lemma \ref{lmm:num-permutation}]
+    In the Online Auction Problem, we denote $W_j(j\ge k+1)$ to be the set of permutations that $x_j=n$, then $\mathcal{U}=W_{k+1}\cup \cdots\cup W_n$, and $\text{Pr}(W_j)=\dfrac{1}{n}$. Since $\text{Pt}(T|W_j)$ is the probability that we can get the best price in the case of $x_j=n$, i.e. the maximum of $x_1,x_2,\cdots,x_{j-1}$ appears in $x_1,x_2,\cdots,x_k$, so $\text{Pt}(T|W_j)=\dfrac{k}{j-1}$. This gives a brief proof to Lemma \ref{lmm:num-permutation}.
+\end{example}
+
+\begin{theorem}[Chain Rule]
+    Let $V_1, V_2,\cdots, V_k$ be events that not forced to be disjoint, and the event that they happen simutaneously is $T=V_1\cap V_2\cap\cdots\cap V_k$, then
+    $$\text{Pr}(T)=\text{Pr}(V_1)\text{Pr}(V_2|V_1)\text{Pr}(V_3|V_1\cap V_2)\cdots\text{Pr}(V_k|V_1\cap V_2\cap \cdots\cap V_{k-1})$$
+\end{theorem}
+
+\begin{remark}
+    The chain rule is a generalization of the ``multiplication principle''.
+\end{remark}
+
+\begin{example}
+    In birthday paradox, denote $\bar T$ to be the event that everyone in class has a unique birthday, and $V_j$ is the student \#1, \#2, $\cdots$, \#$j$ have different birthdays, so $T=V_1\cap V_2\cap\cdots\cap V_k$, and
+    $$\Pr(V_j|V_1\cap V_2\cap \cdot\cap V_{j-1})=1-\frac{j-1}{n}.$$
+
+    Appling the Chain Rule we get 
+    $$\text{Pr}(T)=\text{Pr}(V_1)\text{Pr}(V_2|V_1)\cdots\text{Pr}(V_k|V_1\cap V_2\cap \cdots\cap V_{k-1})=\prod_{i=0}^{k-1}\left(1-\frac{i}{n}\right).$$
+\end{example}
+
+\section{Expectation}
+
+\begin{definition}[Expectation]
+    For a probability space $\mathbb{P}=(\mathcal{U},p)$, a random variable $X$ over $\mathcal{U}$ is a real-valued mapping $X:\mathcal{U}\to (-\infty,+\infty)$.
+    
+    The expectation of $X$ is defined by 
+    $$\mathbb{E}(X)=\sum_{u\in U}X(u)p(u).$$
+\end{definition}
+
+\begin{theorem}[linear of expectation] If random variable $X=X_1+X_2$, then
+    $$\mathbb{E}(X)=\mathbb{E}(X_1)+\mathbb{E}(X_2).$$
+\end{theorem}
+
+\begin{proof} by the definition of expctation,
+    $$\mathbb{E}(X)=\sum_{u\in U}p(u)X(u)=\sum_{u\in U}p(u)(X_1(u)+X_2(u))=\mathbb{E}(X_1)+\mathbb{E}(X_2).$$
+\end{proof}
+
+\begin{example}
+    Throw $n$ coins independently, each coin has bias $b$, i.e. 
+    $$
+    \begin{cases}
+    \text{Pr}(X_i=1)=b \\
+    \text{Pr}(X_i=0)=1-b
+    \end{cases}.
+    $$
+    
+    Denote $X$ to be the number of $1$s you throw. Then $\mathbb{E}(X)=\mathbb{E}(X_1)+\mathbb{E}(X_2)+\cdots+\mathbb{E}(X_n)=bn$.
+\end{example}
+
+\begin{example}
+    Take a random permutation $u$ of $\{1,2,\cdots,n\}$, look at its cycle representation, denote by $X(u)$ the number of cycles in its cycle representation.
+    
+    To calculate the expectation of $X(u)$, we can write the random variable $X(u)$ to be some easily calculated random variables. Denote $X_i=\dfrac{1}{l}$ be the random variables of $i$, where $l$ is the length of the cycle that $i$ is on. Then $X=\sum\limits_{i=1}^nX_i$.
+
+    So $\mathbb{E}(X)=\sum\limits_{i=1}^n\mathbb{E}(X_i)$. The rest of the problem is solved in homework.
+\end{example}
+
+\begin{example}
+    We play a game on a rooted tree. In every step we randomly pick a node $v$ and delete $v$ and all its descendents, repeat the step until the tree is empty. Denote by $X$ the number of steps we will make before tree is empty. The result is also shown in homework.
+\end{example}
+
+
+\end{document}
